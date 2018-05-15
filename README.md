@@ -1,1 +1,1 @@
-# graphql-php-client
+# GraphQL Client for PHP
