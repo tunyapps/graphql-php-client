@@ -1,0 +1,41 @@
+{
+  "name": "tunyapps/graphql-php-client",
+  "description": "Simple builder query for graphql",
+  "keywords": [
+    "graphql"
+  ],
+  "authors": [
+    {
+      "name": "Killbond",
+      "email": "killbond@mail.ru"
+    },
+    {
+      "name": "ferryvg",
+      "email": "ferry.very@gmail.com"
+    },
+    {
+      "name": "Informixter",
+      "email": "pbd.incom@gmail.com"
+    }
+  ],
+  "autoload": {
+    "classmap": [
+      "src/"
+    ],
+    "psr-0": {
+      "Tunyapps\\GraphQL\\Client\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/Test.php"
+    ]
+  },
+  "require": {
+    "php": ">=5.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5"
+  }
+
+}
