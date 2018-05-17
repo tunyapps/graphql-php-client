@@ -100,6 +100,7 @@ class BaseQuery
     /**
      * @param string $name
      * @param array $args
+     * @return $this
      * @throws SyntaxErrorException
      */
     public function __call($name, $args) {
@@ -109,5 +110,6 @@ class BaseQuery
         }
 
         $this->method($name, $args[0]);
+        return $this;
     }
 }
