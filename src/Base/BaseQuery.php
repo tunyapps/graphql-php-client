@@ -2,40 +2,31 @@
 
 namespace Base;
 
+
+use Exceptions\BuilderErrorException;
+use Traits\FieldsTrait;
+use Traits\ArgumentsTrait;
 use Exceptions\SyntaxErrorException;
 
 class BaseQuery
 {
+    use FieldsTrait,
+        ArgumentsTrait;
+
     /**
      * @var string
      */
     protected $type;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $methods = [];
+    protected $method = '';
 
     /**
-     * @var array
-     *
-     * [
-     *     'foo',
-     *     'bar'
-     * ]
+     * @var QueryVariables
      */
-    protected $args = [];
-
-    /**
-     * @var array
-     *
-     * [
-     *     'foo' => SubQuery,
-     *     'bar',
-     *     'baz'
-     * ]
-     */
-    protected $fields = [];
+    protected $variables = null;
 
     /**
      * @param string $type
@@ -47,48 +38,68 @@ class BaseQuery
         return $this;
     }
 
-    public function fields()
-    {
-
-    }
-
     /**
      * @param string $method
+     * @param null $callback
      * @return $this
      */
     public function method($method, $callback = null)
     {
-        $this->methods[] = $method;
-        $definition = new QueryVariables();
-        call_user_func($callback, $definition);
+        $this->method = $method;
+        if(isset($callback)) {
+            $definition = new QueryVariables();
+            call_user_func($callback, $definition);
+            $this->variables = $definition;
+        }
         return $this;
     }
 
     /**
      * @return string
+     * @throws BuilderErrorException
      */
     public function build()
     {
-        $query = $this->type;
-        if('mutation' == $this->type) {
-            $query .= ' ' . $this->object . '{';
-            $query .= $this->method . '(';
-        } else {
-            $query .= ' ' . $this->method . '{';
-            $query .= $this->object . '(';
+        $prototype = $this->args;
+        foreach($this->variables->prototype() as $name => $type) {
+            $prototype[] = '$' . $name . ':' . $type;
         }
 
-        $query .= join($this->args, ',');
-        $query .= '){' . join($this->fields, ',') . '}';
-        $query .= '}';
-        $query = urlencode($query);
+        $fields = [];
+        foreach($this->fields as $key => $field) {
 
-        return $query;
+            if($field instanceof SubQuery) {
+                $fields[] = $key . $field->build();
+                continue;
+            }
+
+            if(is_string($field)) {
+                $fields[] = $field;
+                continue;
+            }
+
+            throw new BuilderErrorException("Structure of query fields data is corrupted");
+        }
+
+        $variables = [];
+        foreach($this->variables->values() as $name => $value) {
+            $variables[] = $name . ':"' . $value . '"';
+        }
+
+        $type = $this->type;
+        $method = $this->method;
+        $fields = '{' . join($fields, ',') . '}';
+        $prototype = count($prototype) ? '(' . join($prototype, ',') . ')' : '';
+        $variables = count($variables) ? 'variables:{' . join($variables, ',') . '}' : '';
+
+        $query = $type . ' ' . $method . $prototype . $fields . ' ' . $variables;
+
+        return urldecode($query);
     }
 
     /**
-     * @param $name
-     * @param $args
+     * @param string $name
+     * @param array $args
      * @throws SyntaxErrorException
      */
     public function __call($name, $args) {

@@ -2,17 +2,41 @@
 
 namespace Base;
 
+
+use Traits\FieldsTrait;
+use Traits\ArgumentsTrait;
 use Interfaces\SubQueryInterface;
+use Exceptions\BuilderErrorException;
 
 class SubQuery implements SubQueryInterface
 {
-    public function args($args)
-    {
-        // TODO: Implement args() method.
-    }
+    use FieldsTrait,
+        ArgumentsTrait;
 
-    public function fields($fields)
+    /**
+     * @return string
+     * @throws BuilderErrorException
+     */
+    public function build()
     {
-        // TODO: Implement fields() method.
+        $parts = [];
+        $prototype = '(' . join($this->args, ',') . ')';
+
+        foreach($this->fields as $key => $field) {
+
+            if($field instanceof self) {
+                $parts[] = $key . $field->build();
+                continue;
+            }
+
+            if(is_string($field)) {
+                $parts[] = $field;
+                continue;
+            }
+
+            throw new BuilderErrorException("Structure of query fields data is corrupted");
+        }
+
+        return $prototype . '{' . join($parts, ',') . '}';
     }
 }

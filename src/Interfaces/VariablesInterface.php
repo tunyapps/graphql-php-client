@@ -12,4 +12,6 @@ interface VariablesInterface
     public function integer($name, $value);
 
     public function float($name, $value);
+
+    public function id($name, $value);
 }

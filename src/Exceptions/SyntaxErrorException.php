@@ -2,6 +2,7 @@
 
 namespace Exceptions;
 
+
 class SyntaxErrorException extends \Exception
 {
 
