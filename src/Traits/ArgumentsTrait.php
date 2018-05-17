@@ -38,6 +38,11 @@ trait ArgumentsTrait
         return $this;
     }
 
+    /**
+     * @param $arg
+     * @return $this
+     * @throws SyntaxErrorException
+     */
     public function arg($arg)
     {
         if(is_string($arg)) {
