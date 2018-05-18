@@ -5,7 +5,7 @@ namespace Interfaces;
 
 interface SubQueryInterface
 {
-    public function args($args);
+    public function args();
 
     public function fields($fields);
 }

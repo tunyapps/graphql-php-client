@@ -3,6 +3,7 @@
 namespace Traits;
 
 
+use Closure;
 use Base\SubQuery;
 use Exceptions\SyntaxErrorException;
 
@@ -33,7 +34,7 @@ trait FieldsTrait
 
         foreach($fields as $field => $definition) {
 
-            if(is_callable($field)) {
+            if(is_callable($definition) && $definition instanceof Closure) {
                 $this->field($field, $definition);
                 continue;
             }
